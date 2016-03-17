@@ -9,7 +9,7 @@ RELEASE	?= 0
 
 .PHONY: doc
 
-all:	build-simavr build-tests build-examples
+all:	build-simavr
 
 build-simavr:
 	$(MAKE) -C simavr RELEASE=$(RELEASE)

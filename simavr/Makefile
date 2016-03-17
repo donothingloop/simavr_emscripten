@@ -125,7 +125,6 @@ debian:
 	(cd /tmp/simavr-tmp && \
 	fpm -s dir -t deb -C /tmp/simavr-tmp -n libsimavr -v $(SIMAVR_VERSION) \
 		--iteration $(SIMAVR_REVISION) \
-		-d 'libelf' \
         --description "lean and mean Atmel AVR simulator: Runtime library" \
         usr/lib/lib*.so* && \
 	fpm -s dir -t deb -C /tmp/simavr-tmp -n libsimavr-dev -v $(SIMAVR_VERSION) \
