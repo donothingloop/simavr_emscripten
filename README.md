@@ -10,6 +10,13 @@ simulator loads ELF files directly, and there is even a way to specify simulatio
 parameters directly in the emulated code using an .elf section. You can also 
 load multipart HEX files.
 
+Compiling
+---------
+
+- Install the _emscripten SDK_ [http://kripken.github.io/emscripten-site/docs/getting\_started/downloads.html]
+- Run _build.sh_
+- Resulting files are _simavr.js_ and _simavr.js.mem_
+
 Supported IOs
 --------------
 * _eeprom_
