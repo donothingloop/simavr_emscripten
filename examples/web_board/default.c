@@ -32,19 +32,29 @@
 
 avr_t * avr = NULL;
 
-void pin_changed_hook(struct avr_irq_t * irq, uint32_t value, void * param)
+char ports[8] = {'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'};
+
+void pin_changed_hook(struct avr_irq_t * irq, uint32_t value, char * param)
 {
-    printf("pin_changed_hook: %u\n", value);
-	//pin_state = (pin_state & ~(1 << irq->irq)) | (value << irq->irq);
+    //printf("pin_changed_hook: port: %c %u: %u\n", *param, irq->irq, value);
+    
+    EM_ASM_({
+                pin_changed($0, $1, $2);
+            }, *param, irq->irq, value);
+}
+
+EMSCRIPTEN_KEEPALIVE
+void set_pin(char port, uint16_t pin, uint8_t value) {
+    printf("set_pin: Port %c, pin: %u, value: %u\n", port, pin, value);
+    avr_raise_irq(avr_io_getirq(avr, AVR_IOCTL_IOPORT_GETIRQ(port), pin), value); 
 }
 
 EMSCRIPTEN_KEEPALIVE
 void run() {
-    printf("cycle\n");
-    avr_run(avr);
+    for(int i = 0; i < 4000; i++)
+        avr_run(avr);
 }
 
-EMSCRIPTEN_KEEPALIVE
 void loop() {
     for (;;) {
         int state = avr_run(avr);
@@ -56,9 +66,8 @@ void loop() {
 }
 
 EMSCRIPTEN_KEEPALIVE
-void init()
+void init(char* filename)
 {
-    char * filename = "flash.hex";
 	elf_firmware_t f;
     ihex_chunk_p chunk = NULL;
     int cnt = read_ihex_chunks(filename, &chunk);
@@ -87,7 +96,7 @@ void init()
         }
     }
 
-    f.frequency = 0xffffffff;
+    f.frequency = 0x0fffffff;
     strcpy(f.mmcu, "atmega1280");
 	printf("firmware %s f=%d mmcu=%s\n", filename, (int)f.frequency, f.mmcu);
 
@@ -99,10 +108,13 @@ void init()
 	avr_init(avr);
 	avr_load_firmware(avr, &f);
 
-	// connect all the pins on port B to our callback
-	for (int i = 0; i < 8; i++)
-		avr_irq_register_notify(
-			avr_io_getirq(avr, AVR_IOCTL_IOPORT_GETIRQ('A'), i),
-			pin_changed_hook, 
-			NULL);
+    for(int pi = 0; pi < (sizeof(ports)/sizeof(ports[0])); pi++) {
+        for (int i = 0; i < 8; i++)
+            avr_irq_register_notify(
+                avr_io_getirq(avr, AVR_IOCTL_IOPORT_GETIRQ(ports[pi]), i),
+                pin_changed_hook, 
+                (void*)&ports[pi]);
+    }
+
+//    emscripten_set_main_loop(loop, 60, 0);
 }
