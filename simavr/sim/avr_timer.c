@@ -291,7 +291,7 @@ avr_timer_configure(
 	p->tov_cycles = 0;
 	p->tov_top = top;
 
-	p->tov_cycles = frequency / t; // avr_hz_to_cycles(frequency, t);
+	p->tov_cycles = (frequency / t)/2; // avr_hz_to_cycles(frequency, t);
 
 	AVR_LOG(p->io.avr, LOG_TRACE, "TIMER: %s-%c TOP %.2fHz = %d cycles = %dusec\n",
 			__FUNCTION__, p->name, t, (int)p->tov_cycles,
@@ -308,7 +308,7 @@ avr_timer_configure(
 			printf("%s-%c clock %d top %d OCR%c %d\n", __FUNCTION__, p->name, clock, top, 'A'+compi, ocr);
 
 		if (ocr && ocr <= top) {
-			p->comp[compi].comp_cycles = frequency / fc; // avr_hz_to_cycles(p->io.avr, fa);
+			p->comp[compi].comp_cycles = (frequency / fc)/2; // avr_hz_to_cycles(p->io.avr, fa);
 //			AVR_LOG(p->io.avr, LOG_TRACE,
 			if (p->trace & (avr_timer_trace_compa << compi)) printf(
 					"TIMER: %s-%c %c %.2fHz = %d cycles\n",
@@ -334,7 +334,8 @@ avr_timer_reconfigure(
 	// cancel everything
 	avr_timer_cancel_all_cycle_timers(avr, p, 1);
 
-	switch (p->wgm_op_mode_kind) {
+    uint8_t mode = avr_regbit_get_array(avr, p->wgm, ARRAY_SIZE(p->wgm));
+	switch (mode) {
 		case avr_timer_wgm_normal:
 			avr_timer_configure(p, p->cs_div_clock, p->wgm_op_mode_size);
 			break;
@@ -353,9 +354,9 @@ avr_timer_reconfigure(
 			avr_timer_configure(p, p->cs_div_clock, p->wgm_op_mode_size);
 			break;
 		default: {
-			uint8_t mode = avr_regbit_get_array(avr, p->wgm, ARRAY_SIZE(p->wgm));
 			AVR_LOG(avr, LOG_WARNING, "TIMER: %s-%c unsupported timer mode wgm=%d (%d)\n",
 					__FUNCTION__, p->name, mode, p->mode.kind);
+            AVR_LOG(avr, LOG_WARNING, "TIMER: wgm_op_mode_kind: %d\n", p->wgm_op_mode_kind);
 		}
 	}	
 }

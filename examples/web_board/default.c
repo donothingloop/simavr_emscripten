@@ -32,7 +32,7 @@
 
 avr_t * avr = NULL;
 
-char ports[8] = {'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'};
+char ports[11] = {'L', 'K', 'J', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'};
 
 void pin_changed_hook(struct avr_irq_t * irq, uint32_t value, char * param)
 {
@@ -51,7 +51,7 @@ void set_pin(char port, uint16_t pin, uint8_t value) {
 
 EMSCRIPTEN_KEEPALIVE
 void run() {
-    for(int i = 0; i < 4000; i++)
+    for(int i = 0; i < 64000; i++)
         avr_run(avr);
 }
 
@@ -96,7 +96,7 @@ void init(char* filename)
         }
     }
 
-    f.frequency = 0x0fffffff;
+    f.frequency = 16000000;
     strcpy(f.mmcu, "atmega1280");
 	printf("firmware %s f=%d mmcu=%s\n", filename, (int)f.frequency, f.mmcu);
 
@@ -107,6 +107,9 @@ void init(char* filename)
 	}
 	avr_init(avr);
 	avr_load_firmware(avr, &f);
+
+    avr->log = LOG_TRACE;
+//    avr->trace = 1;
 
     for(int pi = 0; pi < (sizeof(ports)/sizeof(ports[0])); pi++) {
         for (int i = 0; i < 8; i++)

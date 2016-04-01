@@ -33,7 +33,7 @@ extern "C" {
 static inline avr_cycle_count_t
 avr_usec_to_cycles(struct avr_t * avr, uint32_t usec)
 {
-	return avr->frequency * (avr_cycle_count_t)usec / 1000000;
+	return (avr->frequency * (avr_cycle_count_t)usec / 1000000)/4;
 }
 
 // converts back a number of cycles to usecs (for usleep)
