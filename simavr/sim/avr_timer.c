@@ -335,7 +335,7 @@ avr_timer_reconfigure(
 	avr_timer_cancel_all_cycle_timers(avr, p, 1);
 
     uint8_t mode = avr_regbit_get_array(avr, p->wgm, ARRAY_SIZE(p->wgm));
-	switch (mode) {
+	switch (p->mode.kind) {
 		case avr_timer_wgm_normal:
 			avr_timer_configure(p, p->cs_div_clock, p->wgm_op_mode_size);
 			break;

@@ -166,7 +166,7 @@ main(
 	avr_connect_irq(ac_input.irq + IRQ_AC_OUT, avr_io_getirq(avr,
 	        AVR_IOCTL_IOPORT_GETIRQ('D'), 2));
 
-	hd44780_init(avr, &hd44780, 20, 4);
+	hd44780_init(avr, &hd44780, 20,2);
 
 	/* Connect Data Lines to Port B, 0-3 */
 	/* These are bidirectional too */
